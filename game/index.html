@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<!--
+**************************************************
+WebTale Adventure Game Engine
+Inutilis Software (http://www.inutilis.de)
+Developed 2012 by Timo Kloss
+DO WANT YOU WANT WITH THIS, BUT ON YOUR OWN RISK!
+**************************************************
+-->
+<html>
+
+<head>
+
+<title>WebTale Adventure Game</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0;" />
+<link href="style.css" rel="stylesheet" type="text/css" />
+<link media="only screen and (max-device-width: 640px)" href="mobile.css" rel="stylesheet" type="text/css" />
+
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<meta name="title" content="WebTale Adventure Game" />
+<meta name="description" content="This is an online adventure game." />
+<link rel="image_src" href="gamedata/preview.jpg" />
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="engine.js"></script>
+
+</head>
+
+<body>
+
+<!--
+<div id="fb-root"></div>
+<script type="text/javascript">
+	window.fbAsyncInit = function() {
+		FB.init({
+			appId      : 'YOUR_APP_ID', // App ID
+			status     : true, // check login status
+			cookie     : true, // enable cookies to allow the server to access the session
+			xfbml      : true  // parse XFBML
+		});
+		
+		FB.Event.subscribe('auth.statusChange',
+			function(response) {
+				if (response.status === 'connected') {
+					// ready!
+					var uid = response.authResponse.userID;
+					setUserId(uid);
+					setShareFunction(shareOnFB);
+				} else if (response.status === 'not_authorized') {
+					// authorize
+					var oauth_url = 'https://www.facebook.com/dialog/oauth/';
+					oauth_url += '?client_id=YOUR_APP_ID';
+					oauth_url += '&redirect_uri=' + encodeURIComponent('http://apps.facebook.com/YOUR_APP/');
+					window.top.location = oauth_url;
+  				} else {
+					// the user isn't logged in to Facebook.
+				}
+			}
+		);
+		
+		// Additional initialization code here
+	};
+
+	// Load the SDK Asynchronously
+	(function(d){
+		var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+		if (d.getElementById(id)) {return;}
+		js = d.createElement('script'); js.id = id; js.async = true;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		ref.parentNode.insertBefore(js, ref);
+	}(document));
+	
+	function shareOnFB(title, text, picture) {
+		var obj = {
+			method: 'feed',
+			link: 'http://apps.facebook.com/YOUR_APP/',
+			picture: picture,
+			name: title,
+			description: text
+		};
+		
+        FB.ui(obj);
+	}
+</script>
+-->
+
+<div id="container">
+
+<h1 id="title">WebTale Adventure Game</h1>
+
+<div id="image-container">
+</div>
+
+<div id="text">
+</div>
+
+<div id="items">
+</div>
+
+<div id="inventory">
+</div>
+
+</div>
+
+<div id="menu">
+<!-- you can put here for example a facebook "like" button (width 120, if you use the default css) -->
+<button type="button" id="info-button" onclick="showInfo();">Info</button>
+<button type="button" id="save-button" onclick="saveGame();">Save</button>
+<button type="button" id="load-button" onclick="loadGame();">Load</button>
+</div>
+
+<div id="info-box">
+<img src="gamedata/info.jpg" />
+<div id="game-info"></div>
+<div id="engine-info"></div>
+<button type="button" onclick="hideInfo();">Close</button>
+</div>
+
+<script type="text/javascript">
+loadXML("gamedata/adventure.xml");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<adventure name="Boring Example Game">
+
+	<info>
+		Story: Mine\n
+		Images: Mine\n
+		\n
+		Created this year.\n
+	</info>
+	
+	<!-- SERVER (without these values, savegames will be stored locally in the browser) -->
+
+	<!--
+	<serverurl>//example.com/game/server/</serverurl>
+	<servergameid>your_adv_game</servergameid>
+	-->
+
+	<!-- STANDARD TEXTS -->
+	
+	<text name="DefaultUseItem">% doesn't seem to work.</text>
+	<text name="DefaultLookAt">% looks normal.</text>
+	<text name="DefaultUseObject">% cannot be used like this.</text>
+	<text name="DefaultUseWith">% cannot be used with %.</text>
+	<text name="DefaultGive">% is not needed here.</text>
+	<text name="ButtonLookAt">Look at</text>
+	<text name="ButtonTake">Take</text>
+	<text name="ButtonGive">Give</text>
+	<text name="ButtonUse">Use</text>
+	<text name="ButtonUseWith">Use with</text>
+	<text name="ButtonCancel">Cancel</text>
+	<text name="ButtonShowInventory">Show inventory</text>
+	<text name="ButtonHide">Hide</text>
+	<text name="Inventory">Your Inventory</text>
+	<text name="UseWith">use % with...</text>
+	
+	<!-- LOCATIONS AND PERSONS -->
+	
+	<location name="Example House" image="house.jpg">
+		<init>
+			This is a quite boring example house.
+		</init>
+		<item name="Table">
+			<onuse>
+				You don't want to sit down there now.
+			</onuse>
+			<onlookat>
+				<do if="DuckOnTable">
+					There is a duck with a hat on the table.
+				</do>
+				<do if="not DuckOnTable">
+					The table looks boring.
+				</do>
+			</onlookat>
+			<onusewith name="Duck">
+				The duck looks too boring for this table.
+			</onusewith>
+			<onusewith name="Duck with hat">
+				<drop name="Duck with hat" />
+				<set name="DuckOnTable" />
+				You put the funny looking duck on the table.
+			</onusewith>
+		</item>
+		<item name="Wardrobe">
+			<onuse>
+				<jump to="Wardrobe Man" if="WardrobeIsOpen" />
+				The wardrobe is locked, you cannot open it.
+			</onuse>
+			<onusewith name="Key">
+				<set name="WardrobeIsOpen" />
+				<drop name="Key" />
+				The key fits and you can open the wardrobe now.
+			</onusewith>
+		</item>
+		<item name="Door">
+			<jump to="Example Garden" />
+		</item>
+		<object name="Hat" />
+	</location>
+	
+	<location name="Example Garden" image="garden.jpg">
+		<init>
+			This is a super boring example garden.
+		</init>
+		<item name="Lake">
+			There is a little lake with some animals.
+		</item>
+		<item name="Gate">
+			<do if="has 'Grey stone'">
+				You don't want to leave this garden. You are too bored.
+			</do>
+			<do if="hasnot 'Grey stone'">
+				<get name="Grey stone" />
+				You find a grey stone and you take it, so you forget that you wanted to leave the garden.
+			</do>
+		</item>
+		<item name="House">
+			<jump to="Example House" />
+		</item>
+		<object name="Duck" />
+		<object name="Key" />
+	</location>
+	
+	<location name="Wardrobe Man" image="man.jpg" type="person">
+		<init>
+			<do if="ManIsFriendly">
+				The man in the wardrobe looks friendly and says: "Welcome to my wardrobe!"
+			</do>
+			<do if="not ManIsFriendly">
+				There is a man in the wardrobe. He seems to be scared.\n
+				"Why did you open my wardrobe? I want to be alone!"
+			</do>
+		</init>
+		<item name="What are you doing?">
+			"I am too sad in my boring house, so I started to live in my wardrobe."
+		</item>
+		<item name="Can I do something for you?">
+			<do if="ManIsFriendly">
+				"You did all you can already, thank you."
+			</do>
+			<do if="not ManIsFriendly">
+				"Close my wardrobe and let me alone!"
+			</do>
+		</item>
+		<item name="How did you lose your stone?" status="hidden">
+			"I wanted to leave this place, but I lost my stone, so I returned. I was very scared!"
+		</item>
+		<item name="Bye!">
+			<jump to="Example House" />
+		</item>
+		<objects>
+			<ongive name="Grey stone">
+				<set name="ManIsFriendly" />
+				<drop name="Grey stone" />
+				<show name="How did you lose your stone?" />
+				"Wow! My stone! I missed it so much, thank you. I will be more friendly with you now."
+			</ongive>
+			<onnoneed>
+				"Leave me alone with your boring things!"
+			</onnoneed>
+		</objects>
+	</location>
+	
+	<!-- GLOBAL DEFINITIONS -->
+	
+	<objectdef name="Duck">
+		<onuse>
+			You shouldn't use the duck. It wouldn't be nice.
+		</onuse>
+		<onusewith name="Hat">
+			You put the hat on the duck.
+			<get name="Duck with hat" />
+			<drop name="Hat" />
+			<drop name="Duck" />
+		</onusewith>
+		<onlookat>
+			The duck looks boring.
+		</onlookat>
+	</objectdef>
+	
+	<objectdef name="Duck with hat">
+		The duck looks funny with the hat.
+	</objectdef>
+
+</adventure>

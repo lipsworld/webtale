@@ -1,0 +1,141 @@
+html, body {
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+body {
+	font-size: 120%;
+	background-color: #222;
+	color: #ddd;
+}
+a {
+	text-decoration: none;
+	color: #bbb;
+}
+a:hover {
+	text-decoration: underline;
+}
+a:active {
+	color: #fff;
+}
+h1,
+h2 {
+	margin: 0 0 0.3em 0;
+	font-style: italic;
+}
+#container {
+	width: 640px;
+	min-height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 30px;
+	background-color: #333;
+	border-left: 1px solid #666;
+	border-right: 1px solid #666;
+}
+#image-container {
+	width: 640px;
+	height: 400px;
+	background-color: #000;
+}
+img.image {
+	display: block;
+}
+.loading {
+	padding: 184px 304px;
+}
+#text p {
+	width: 640px;
+}
+#items {
+	margin-bottom: 1em;
+}
+#inventory {
+	margin-bottom: 2em;
+}
+#items ul,
+#inventory ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	font-style: italic;
+}
+#items li,
+#inventory li {
+	width: 624px;
+	padding: 0.2em 0 0.2em 18px;
+	clear: both;
+	background-repeat: no-repeat;
+	background-position: left center;
+}
+#items li.item {
+	background-image: url('images/item.png');
+}
+#items li.item:hover {
+	background-image: url('images/item_hover.png');
+}
+#items li.object,
+#inventory li {
+	background-image: url('images/object.png');
+}
+#items li.object:hover,
+#inventory li:hover {
+	background-image: url('images/object_hover.png');
+}
+#items li span,
+#inventory li span {
+	margin-left: 2em;
+	visibility: hidden;
+}
+#items li:hover span,
+#inventory li:hover span {
+	visibility: visible;
+}
+
+#menu {
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 190px;
+	height: 30px;
+	padding: 2px 10px 0 10px;
+	overflow: hidden;
+	background-color: #333;
+	border-left: 1px solid #666;
+	border-bottom: 1px solid #666;
+	border-bottom-left-radius: 4px;
+}
+#menu button {
+	vertical-align: top;
+}
+
+#info-box {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -160px;
+	margin-left: -210px;
+	width: 400px;
+	height: 300px;
+	padding: 20px;
+	background-color: #333;
+	border: 2px solid #666;
+	border-radius: 4px;
+}
+#info-box img {
+	margin-right: 8px;
+	margin-bottom: 4px;
+}
+#game-info {
+}
+#engine-info {
+	position: absolute;
+	bottom: 10px;
+	font-style: italic;
+}
+#info-box button {
+	position: absolute;
+	bottom: 10px;
+	right: 20px;
+}

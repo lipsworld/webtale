@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>WebTale 1.4 Manual</title>
+<style>
+body {
+	background-color: #222;
+	background-image: url('manual_images/background.png');
+	background-repeat: no-repeat;
+	background-position: left bottom;
+	background-attachment: fixed;
+	color: #ddd;
+	margin: 0;
+	padding: 0;
+}
+a { color: #4af; text-decoration: none; }
+a:hover { text-decoration: underline; }
+#content {
+	max-width: 40em;
+	margin: 1em auto;
+	padding-left: 5%;
+	padding-right: 5%;
+}
+h2 {
+	margin-top: 3em;
+}
+h3 {
+	margin-top: 2em;
+}
+li {
+	margin-bottom: 1em;
+}
+dt {
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+dd {
+	margin-bottom: 1em;
+}
+img {
+	max-width: 70%
+}
+#footer {
+	margin-top: 3em;
+	padding-top: 1em;
+	border-top: 1px solid #666;
+}
+</style>
+</head>
+
+<body>
+<div id="content">
+<img src="manual_images/title.png" />
+<h1>Developer Manual for Version 1.4</h1>
+<h2>Licence</h2>
+Do whatever you want with the engine, but on your own risk! Anyway, games (story and images) have their own rights.
+<h2>Basics</h2>
+<p>WebTale games are made of several locations the player can visit. Each location has a picture, a description text and a list of things, the player can interact with. Furthermore the player can take things (inventory) and use them in other locations or combine them.</p>
+<p>In the WebTale language, things are "items" or "objects":</p>
+<ul>
+<li>Items are part of the location and cannot be taken. Their available actions are "use" (default) and "look at".</li>
+<li>Objects are independent from a location, but they can be taken from one. If they are in the inventory of the player, they are available in all locations. Their actions are "look at" (default), "use" and "use with…". If the current location is of type "person", there is another action "give".</li>
+</ul>
+<p>The default actions happen when the player clicks on the name in the list. Other actions appear as buttons.</p>
+<h2>Engine</h2>
+<p>In the folder "game" you can find the engine and an example game. To start a new project, make a copy of that folder and work with these files.</p>
+<p>The WebTale engine consists of these parts:</p>
+<ul>
+<li>"index.html" is the main file to start a game and like a stage, which is filled by javascript. If you want to add something (e.g. a header image or a Facebook "like" button), you can do it here. You should change the content texts of the meta tags "title" and "description". They will appear for example on Google and on Facebook if somebody shares the link to the game.</li>
+<li>"style.css" defines the visual style of the game interface. You can change it as you want.</li>
+<li>"mobile.css" optimizes the style for mobile devices (e.g. iPhone). It's used if the screen has a width of 640 pixels or less.</li>
+<li>"engine.js" runs the game. If you are happy with the possibilities of the engine, there is no need to touch it. If you need something or you have an idea, <a href="http://www.inutilis.de/about/">contact me</a>!</li>
+<li>"jquery.js" is a programming library needed by "engine.js". It's from <a href="http://jquery.com/">jquery.com</a></li>
+<li>"apple-touch-icon.png" is an icon for bookmarks on iOS devices (iPhone, iPod, iPad).</li>
+<li>"images" is a folder with images for the interface of the game. You can change them, if you want another style, or add whatever you need for your css (e.g. background pictures).</li>
+<li>"server" is an optional folder with php scripts for storing savegames in an SQL database. By default WebTale stores savegames locally in the browser (without server).</li>
+<li>"gamedata" is the folder with game specific files. All the images for the locations have to be there, as well as the following files…</li>
+<li>"gamedata/info.jpg" is the image for the info box. Should be the logo of the game.</li>
+<li>"gamedata/preview.jpg" will appear on Facebook, if somebody shares the link to the game. Should be the logo or any nice picture of the game.</li>
+<li>"gamedata/adventure.xml" is the file with the story of the game. This needs more explanation…</li>
+</ul>
+<h2>XML File</h2>
+<p>The story (which means all the locations, things and actions of the game) is defined in the file "adventure.xml". It's written in XML format. If you don't know what XML is, please check <a href="http://en.wikipedia.org/wiki/XML">wikipedia</a>. Use a plain text editor to write this file (e.g. "NotePad" or "TextEdit"), never applications like "Word" (they would save strange files)!</p>
+<p>Check the existing XML file to see the basic structure.</p>
+<p>There are three types of elements:</p>
+<ul>
+<li>Definitions tell the engine what locations and things exist in the game.</li>
+<li>Action handlers contain commands which are executed, when the player does an action.</li>
+<li>Commands are controlling the game and tell it what to do (e.g. jump to another location). In all places, where you can write commands, you can also write plain text, which appears in the text area of the game.</li>
+</ul>
+<p>In the following descriptions, all attributes between "[" and "]" are optional.</p>
+<h3>Definitions</h3>
+<dl>
+<dt>&lt;adventure name="name of the game"&gt;</dt>
+<dd>This is the root element of the XML file. The name appears as title in the browser window.</dd>
+<dt>&lt;info&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />The text of the info box. Line breaks need to be written as "\n".</dd>
+<dt>&lt;text name="…"&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />A standard text in the language of the game. Standard texts are the default messages, which appear if the player does an action, which is not defined by the story, or texts for buttons in the game. The "%" signs will be replaced by names of items or objects. You can change or translate all texts, but don't touch the "name" attributes and don't remove any element!</dd>
+<dt>&lt;location name="name of the location" image="filename of image" [type="person"]&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />Definition of one location. Each location needs one &lt;init&gt; and can have several &lt;item&gt;s and &lt;object&gt;s. The name is shown as title, but is also an identification for &lt;jump&gt; commands, so there cannot be two locations with the same name. The image is shown and the file path is relative to the "gamedata" folder.<br />
+If the type attribute is set to "person", all items appear in the list with quotes around their names (items are phrases to say then). Furthermore all objects of the inventory get the action "give".</dd>
+<dt>&lt;init&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Contains commands, which are executed when the player enters the location. Usually this is plain text, which describes the location.</dd>
+<dt>&lt;item name="name of the item" [status="hidden"]&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Defines an item for the location. The name appears in the list of things, but it's also used as an identification for other commands. Items which are used in commands cannot have duplicated names.<br />
+If the status attribute is set to "hidden", the item is not shown by default. To make it visible, use the &lt;show&gt; command.<br />
+The element contains action handlers for the item. If there is no action handler, the whole content will be used as &lt;onuse&gt; handler.</dd>
+<dt>&lt;object name="name of the object" /&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Defines an object for the location. The name appears in the list of things, but it's also used as an identification for other commands, so there cannot be objects with the same name in the game.<br />
+There is no content in this element. All its action handlers need to be defined globally in &lt;objectdef&gt; elements or location specific in &lt;objects&gt;.</dd>
+<dt>&lt;objects&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Contains action handlers for objects. They are only used in its location, but have a higher priority than the global action handlers in &lt;objectdef&gt;.</dd>
+<dt>&lt;objectdef name="name of object"&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />Contains action handlers for the object. The name has to be the name of an object which is defined in any location, or used in a &lt;get&gt; command. If there is no action handler, the whole content will be used as &lt;onlookat&gt; handler.</dd>
+</dl>
+<h3>Action Handlers</h3>
+<dl>
+<dt>&lt;onlookat [name="name of thing"]&gt;</dt>
+<dt>&lt;onuse [name="name of thing"]&gt;</dt>
+<dt>&lt;onusewith name="name of second thing"&gt;</dt>
+<dt>&lt;ongive name="name of object"&gt;</dt>
+<dd>(Inside of &lt;item&gt;, &lt;objects&gt;, &lt;objectdef&gt;)<br />All action handlers can contain commands and/or plain text. When the player does an action, the corresponding handler will execute its content and/or show its text.<br />
+If an action handler is inside of an &lt;item&gt; or &lt;objectdef&gt; definition, don't use the name attribute, because the handler already belongs to it. The only exception is &lt;onusewith&gt;, because the name is of the second thing the player clicks on.<br />
+If an action handler is inside of &lt;objects&gt; in a location, you have to put the name attribute with the name of an existing object. The &lt;onusewith&gt; handler cannot be used inside &lt;objects&gt;.</dd>
+<dt>&lt;onnoneed&gt;</dt>
+<dd>(Inside of &lt;objects&gt;)<br />This is a special action handler, which is used when the player tries to give an object to a person and for the object there is no &lt;ongive&gt; defined. It's usually a plain text like "I don't need this" in the talk style of the person.</dd>
+</dl>
+<h3>Commands</h3>
+All commands have the optional attribute "if". This means, the command is only executed, if the expression in the "if" attribute is true. Expressions are explained later.<br />
+If you write plain text instead of a command, it is added to the text area of the game. Line breaks have to be written as "\n", breaks in the text editor are ignored.
+<dl>
+<dt>&lt;jump to="name of location" [if="expression"] /&gt;</dt>
+<dd>Makes the game continue in another location. If this command is executed, following commands will be skipped.</dd>
+<dt>&lt;do if="expression"&gt;</dt>
+<dd>Contains actions which are only executed if the expression is true. Usually contains plain text, because other commands already have their own "if" attribute.</dd>
+<dt>&lt;get name="name of object /&gt;</dt>
+<dd>Adds an object to the inventory. If an object with this name is in the current location, it will be removed from there.</dd>
+<dt>&lt;drop name="name of object" /&gt;</dt>
+<dd>Removes the object from the inventory.</dd>
+<dt>&lt;show name="name of item" [location="name of the location"] /&gt;</dt>
+<dd>Makes an item with status="hidden" visible. This status will stay, even if the player visits other locations, until &lt;hide&gt; is called. If the location attribute is not set, the current location will be used.</dd>
+<dt>&lt;hide name="name of item" [location="name of the location"] /&gt;</dt>
+<dd>Hides the item. This status will stay, even if the player visits other locations, until &lt;show&gt; is called. If the location attribute is not set, the current location will be used.</dd>
+<dt>&lt;set name="name of variable" [value="number"] /&gt;</dt>
+<dd>Sets the variable to a number. If no variable of this name exists, it will be created. If no value is given, the variable is set to 1.</dd>
+<dt>&lt;add name="name of variable" [value="number"] /&gt;</dt>
+<dd>Adds the given value to the current value of the variable (negative values can be used to subtract). If no value is given, 1 is added. If no variable of the name exists, it will be created with the given value (or 1, if no value is given).</dd>
+<dt>&lt;showimage file="filename of image" /&gt;</dt>
+<dd>Changes the current image to the given one. The file path is relative to the "gamedata" folder.</dd>
+<dt>&lt;share title="title text" text="detailed text" picture="complete URL of an image file" /&gt;</dt>
+<dd>If the game runs in a social network (e.g. Facebook), this will open a "share" dialog. Otherwise the command is ignored.</dd>
+</dl>
+<h3>Expressions</h3>
+<p>Expressions are written inside of "if" attributes and are resolved in true or false. Whenever you use a name of a variable or an object with spaces inside, put single quotes (') around it. For information about variables, see the commands &lt;set&gt; and &lt;add&gt;.</p>
+<dl>
+<dt>"X"</dt>
+<dd>X can be a number or the name of a variable. If the value is 0, the result is false (unexisting variables are 0, too). All other values are resolved in true.</dd>
+<dt>"not X"</dt>
+<dd>Works like "X", but with the contrary result.</dd>
+<dt>"has X"</dt>
+<dd>X is the name of an object. If the player has this object in the inventory, this expression is resolved in true, otherwise in false.</dd>
+<dt>"hasnot X"</dt>
+<dd>Works like "has X", but with the contrary result.</dd>
+<dt>"X is Y"</dt>
+<dd>X and Y can be numbers or names of variables. If both values are equal, the expression is resolved in true, otherwise in false.</dd>
+<dt>"X ismin Y"</dt>
+<dd>X and Y can be numbers or names of variables. If X is equal or bigger than Y, the expression is resolved in true, otherwise in false.</dd>
+<dt>"X ismax Y"</dt>
+<dd>X and Y can be numbers or names of variables. If X is equal or smaller than Y, the expression is resolved in true, otherwise in false.</dd>
+<dt>"X isnot Y"</dt>
+<dd>X and Y can be numbers or names of variables. If the values are unequal, the expression is resolved in true, otherwise in false.</dd>
+</dl>
+<h2>Server and Social Networks</h3>
+<p>Starting with version 1.4 it is possible to store the user's savegames on a server (requires PHP and MySQL). To make this possible the game needs to run in an environment where the user is logged in, because the server needs a unique user ID. The engine is prepared for Facebook, but can be extended for other platforms, too.</p>
+<h3>Preparing the Server</h3>
+<p>Create a database in MySQL and then execute this SQL code to create the table:</p>
+<pre>
+CREATE TABLE savegames (
+game_id VARCHAR(30),
+user_id VARCHAR(30),
+data_json TEXT,
+CONSTRAINT pk_savegames PRIMARY KEY (game_id, user_id));
+</pre>
+<p>Then edit the file "server/serverconf.php" and put the correct values to access the database.</p>
+<h3>Preparing the Game</h3>
+<p>In "gamedata/adventure.xml" you have to define &lt;serverurl&gt; and &lt;servergameid&gt;. The first has to be the URL of the server directory (where the PHP files are). The second should be a short name of the game (e.g. "myadv1"). With the game ID it is possible to use the same MySQL table for different games.</p>
+<p>As soon as these values are defined in the XML, the game will not store savegames locally in the browser anymore. But to enable the Load/Save buttons, the user ID needs to be set. In the "index.html" of the game exists prepared code for Facebook. If you want to use it, remove the lines &lt;-- and --&gt; from around the JavaScript part. There are several places with "YOUR_APP_ID" and "YOUR_APP", which need to be replaced with the real values of your Facebook application. The JavaScript part for Facebook also sets the function to open "share" dialogs.</p>
+<h3>Other Environments</h3>
+<p>If you don't use Facebook, you can delete the JavaScript code for it from the game's "index.html". To enable storing on a server you have to provide a user ID (can be a string) by calling setUserId(uid). If it's a social network and you want to be able to share "stories" on a wall, you have to implement a function like "share(title, text, picture)" and call setShareFunction(function).</p>
+<div id="footer">
+Created in 2012 by Timo Kloss of <a href="http://www.inutilis.de">Inutilis</a>
+</div>
+</div>
+</body>
+</html>
