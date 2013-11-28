@@ -17,121 +17,121 @@
 
 	<!-- STANDARD TEXTS -->
 	
-	<text name="DefaultUseItem">% doesn't seem to work.</text>
-	<text name="DefaultLookAt">% looks normal.</text>
-	<text name="DefaultUseObject">% cannot be used like this.</text>
-	<text name="DefaultUseWith">% cannot be used with %.</text>
-	<text name="DefaultGive">% is not needed here.</text>
-	<text name="ButtonLookAt">Look at</text>
-	<text name="ButtonTake">Take</text>
-	<text name="ButtonGive">Give</text>
-	<text name="ButtonUse">Use</text>
-	<text name="ButtonUseWith">Use with</text>
-	<text name="ButtonCancel">Cancel</text>
-	<text name="ButtonShowInventory">Show inventory</text>
-	<text name="ButtonHide">Hide</text>
-	<text name="Inventory">Your Inventory</text>
-	<text name="UseWith">use % with...</text>
+	<text id="DefaultUseItem">% doesn't seem to work.</text>
+	<text id="DefaultLookAt">% looks normal.</text>
+	<text id="DefaultUseObject">% cannot be used like this.</text>
+	<text id="DefaultUseWith">% cannot be used with %.</text>
+	<text id="DefaultGive">% is not needed here.</text>
+	<text id="ButtonLookAt">Look at</text>
+	<text id="ButtonTake">Take</text>
+	<text id="ButtonGive">Give</text>
+	<text id="ButtonUse">Use</text>
+	<text id="ButtonUseWith">Use with</text>
+	<text id="ButtonCancel">Cancel</text>
+	<text id="ButtonShowInventory">Show inventory</text>
+	<text id="ButtonHide">Hide</text>
+	<text id="Inventory">Your Inventory</text>
+	<text id="UseWith">use % with...</text>
 	
 	<!-- LOCATIONS AND PERSONS -->
 	
-	<location name="Example House" image="house.jpg">
+	<location id="example_house" name="Example House" image="house.jpg">
 		<init>
 			This is a quite boring example house.
 		</init>
-		<item name="Table">
+		<item id="table" name="Table">
 			<onuse>
 				You don't want to sit down there now.
 			</onuse>
 			<onlookat>
-				<do if="DuckOnTable">
+				<do if="duck_on_table">
 					There is a duck with a hat on the table.
 				</do>
-				<do if="not DuckOnTable">
+				<do if="not duck_on_table">
 					The table looks boring.
 				</do>
 			</onlookat>
-			<onusewith name="Duck">
+			<onusewith id="duck">
 				The duck looks too boring for this table.
 			</onusewith>
-			<onusewith name="Duck with hat">
-				<drop name="Duck with hat" />
-				<set name="DuckOnTable" />
+			<onusewith id="duck_with_hat">
+				<drop id="duck_with_hat" />
+				<set var="duck_on_table" />
 				You put the funny looking duck on the table.
 			</onusewith>
 		</item>
-		<item name="Wardrobe">
+		<item id="wardrobe" name="Wardrobe">
 			<onuse>
-				<jump to="Wardrobe Man" if="WardrobeIsOpen" />
+				<jump to="wardrobe_man" if="wardrobe_is_open" />
 				The wardrobe is locked, you cannot open it.
 			</onuse>
-			<onusewith name="Key">
-				<set name="WardrobeIsOpen" />
-				<drop name="Key" />
+			<onusewith id="key">
+				<set var="wardrobe_is_open" />
+				<drop id="key" />
 				The key fits and you can open the wardrobe now.
 			</onusewith>
 		</item>
-		<item name="Door">
-			<jump to="Example Garden" />
+		<item id="door" name="Door">
+			<jump to="example_garden" />
 		</item>
-		<object name="Hat" />
+		<object id="hat" name="Hat" />
 	</location>
 	
-	<location name="Example Garden" image="garden.jpg">
+	<location id="example_garden" name="Example Garden" image="garden.jpg">
 		<init>
 			This is a super boring example garden.
 		</init>
-		<item name="Lake">
+		<item id="lake" name="Lake">
 			There is a little lake with some animals.
 		</item>
-		<item name="Gate">
-			<do if="has 'Grey stone'">
+		<item id="gate" name="Gate">
+			<do if="has grey_stone">
 				You don't want to leave this garden. You are too bored.
 			</do>
-			<do if="hasnot 'Grey stone'">
-				<get name="Grey stone" />
+			<do if="hasnot grey_stone">
+				<get id="grey_stone" name="Grey stone" />
 				You find a grey stone and you take it, so you forget that you wanted to leave the garden.
 			</do>
 		</item>
-		<item name="House">
-			<jump to="Example House" />
+		<item id="house" name="House">
+			<jump to="example_house" />
 		</item>
-		<object name="Duck" />
-		<object name="Key" />
+		<object id="duck" name="Duck" />
+		<object id="key" name="Key" />
 	</location>
 	
-	<location name="Wardrobe Man" image="man.jpg" type="person">
+	<location id="wardrobe_man" name="Wardrobe Man" image="man.jpg" type="person">
 		<init>
-			<do if="ManIsFriendly">
+			<do if="man_is_friendly">
 				The man in the wardrobe looks friendly and says: "Welcome to my wardrobe!"
 			</do>
-			<do if="not ManIsFriendly">
+			<do if="not man_is_friendly">
 				There is a man in the wardrobe. He seems to be scared.\n
 				"Why did you open my wardrobe? I want to be alone!"
 			</do>
 		</init>
-		<item name="What are you doing?">
+		<item id="man_1" name="What are you doing?">
 			"I am too sad in my boring house, so I started to live in my wardrobe."
 		</item>
-		<item name="Can I do something for you?">
-			<do if="ManIsFriendly">
+		<item id="man_2" name="Can I do something for you?">
+			<do if="man_is_friendly">
 				"You did all you can already, thank you."
 			</do>
-			<do if="not ManIsFriendly">
+			<do if="not man_is_friendly">
 				"Close my wardrobe and let me alone!"
 			</do>
 		</item>
-		<item name="How did you lose your stone?" status="hidden">
+		<item id="man_3" name="How did you lose your stone?" status="hidden">
 			"I wanted to leave this place, but I lost my stone, so I returned. I was very scared!"
 		</item>
-		<item name="Bye!">
-			<jump to="Example House" />
+		<item id="man_4" name="Bye!">
+			<jump to="example_house" />
 		</item>
 		<objects>
-			<ongive name="Grey stone">
-				<set name="ManIsFriendly" />
-				<drop name="Grey stone" />
-				<show name="How did you lose your stone?" />
+			<ongive id="grey_stone">
+				<set var="man_is_friendly" />
+				<drop id="grey_stone" />
+				<show id="man_3" />
 				"Wow! My stone! I missed it so much, thank you. I will be more friendly with you now."
 			</ongive>
 			<onnoneed>
@@ -142,22 +142,22 @@
 	
 	<!-- GLOBAL DEFINITIONS -->
 	
-	<objectdef name="Duck">
+	<objectdef id="duck">
 		<onuse>
 			You shouldn't use the duck. It wouldn't be nice.
 		</onuse>
-		<onusewith name="Hat">
+		<onusewith id="hat">
 			You put the hat on the duck.
-			<get name="Duck with hat" />
-			<drop name="Hat" />
-			<drop name="Duck" />
+			<get id="duck_with_hat" name="Duck with hat" />
+			<drop id="hat" />
+			<drop id="duck" />
 		</onusewith>
 		<onlookat>
 			The duck looks boring.
 		</onlookat>
 	</objectdef>
 	
-	<objectdef name="Duck with hat">
+	<objectdef name="duck_with_hat">
 		The duck looks funny with the hat.
 	</objectdef>
 

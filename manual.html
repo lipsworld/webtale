@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="Content-Style-Type" content="text/css">
-<title>WebTale 1.4 Manual</title>
+<title>WebTale 1.5 Manual</title>
 <style>
 body {
 	background-color: #222;
@@ -53,7 +53,7 @@ img {
 <body>
 <div id="content">
 <img src="manual_images/title.png" />
-<h1>Developer Manual for Version 1.4</h1>
+<h1>Developer Manual for Version 1.5</h1>
 <h2>Licence</h2>
 Do whatever you want with the engine, but on your own risk! Anyway, games (story and images) have their own rights.
 <h2>Basics</h2>
@@ -71,7 +71,7 @@ Do whatever you want with the engine, but on your own risk! Anyway, games (story
 <li>"index.html" is the main file to start a game and like a stage, which is filled by javascript. If you want to add something (e.g. a header image or a Facebook "like" button), you can do it here. You should change the content texts of the meta tags "title" and "description". They will appear for example on Google and on Facebook if somebody shares the link to the game.</li>
 <li>"style.css" defines the visual style of the game interface. You can change it as you want.</li>
 <li>"mobile.css" optimizes the style for mobile devices (e.g. iPhone). It's used if the screen has a width of 640 pixels or less.</li>
-<li>"engine.js" runs the game. If you are happy with the possibilities of the engine, there is no need to touch it. If you need something or you have an idea, <a href="http://www.inutilis.de/about/">contact me</a>!</li>
+<li>"engine.js" runs the game. If you are happy with the possibilities of the engine, there is no need to touch it. If you need something or you have an idea, <a href="http://www.inutilis.com/about/">contact me</a>!</li>
 <li>"jquery.js" is a programming library needed by "engine.js". It's from <a href="http://jquery.com/">jquery.com</a></li>
 <li>"apple-touch-icon.png" is an icon for bookmarks on iOS devices (iPhone, iPod, iPad).</li>
 <li>"images" is a folder with images for the interface of the game. You can change them, if you want another style, or add whatever you need for your css (e.g. background pictures).</li>
@@ -191,7 +191,7 @@ CONSTRAINT pk_savegames PRIMARY KEY (game_id, user_id));
 <h3>Other Environments</h3>
 <p>If you don't use Facebook, you can delete the JavaScript code for it from the game's "index.html". To enable storing on a server you have to provide a user ID (can be a string) by calling setUserId(uid). If it's a social network and you want to be able to share "stories" on a wall, you have to implement a function like "share(title, text, picture)" and call setShareFunction(function).</p>
 <div id="footer">
-Created in 2012 by Timo Kloss of <a href="http://www.inutilis.de">Inutilis</a>
+Created 2012-2013 by Timo Kloss of <a href="http://www.inutilis.com">Inutilis</a>
 </div>
 </div>
 </body>

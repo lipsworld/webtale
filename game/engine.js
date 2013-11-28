@@ -1,11 +1,11 @@
 /*************************************************
 WebTale Adventure Game Engine
-Inutilis Software (http://www.inutilis.de)
-Developed 2012 by Timo Kloss
+Inutilis Software (http://www.inutilis.com)
+Developed 2012-2013 by Timo Kloss
 DO WANT YOU WANT WITH THIS, BUT ON YOUR OWN RISK!
 *************************************************/
 
-const VERSION = "1.4";
+const VERSION = "1.5";
 
 // game data
 var xmlLocations = new Array();
@@ -16,11 +16,11 @@ var xmlLocationObjectHandlers;
 // current location
 var locationInfos;
 var locationItemInfos;
-var locationObjectNames;
+var locationObjectIds;
 var currentUseWith;
 
 // current game state
-var inventoryNames = new Array();
+var inventoryIds = new Array();
 var objectsTaken = new Object();
 var variables = new Object();
 var locationItemStatus = new Object();
@@ -67,15 +67,7 @@ function loadXML(url)
 	
 	document.getElementById("image-container").appendChild(loadingImage);
 	
-	var xhttp;
-	if (window.XMLHttpRequest)
-	{
-		xhttp = new XMLHttpRequest();
-	}
-	else
-	{
-		xhttp = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	var xhttp = new XMLHttpRequest();
 	
 	xhttp.onreadystatechange = function()
 	{
@@ -125,21 +117,21 @@ function onLoadedXML(xml)
 	for (i = 0; i < texts.length; i++)
 	{
 		var text = texts[i];
-		standardTexts[text.getAttribute("name")] = text.childNodes[0].nodeValue;
+		standardTexts[text.getAttribute("id")] = text.childNodes[0].nodeValue;
 	}
 
 	var locations = xml.getElementsByTagName("location");
 	for (i = 0; i < locations.length; i++)
 	{
 		var location = locations[i];
-		xmlLocations[location.getAttribute("name")] = location;
+		xmlLocations[location.getAttribute("id")] = location;
 	}
 
 	var objectDefs = xml.getElementsByTagName("objectdef");
 	for (i = 0; i < objectDefs.length; i++)
 	{
 		var objectDef = objectDefs[i];
-		xmlObjectDefs[objectDef.getAttribute("name")] = objectDef;
+		xmlObjectDefs[objectDef.getAttribute("id")] = objectDef;
 	}
 	
 	if (useServer() && !userId)
@@ -148,12 +140,12 @@ function onLoadedXML(xml)
 		disableLoadSaveButtons(true);
 	}
 	
-	setLocation(locations[0].getAttribute("name"));
+	setLocation(locations[0].getAttribute("id"));
 }
 
-function setLocation(name)
+function setLocation(id)
 {
-	var location = xmlLocations[name];
+	var location = xmlLocations[id];
 	
 	if (location)
 	{
@@ -163,7 +155,7 @@ function setLocation(name)
 		xmlLocationObjectHandlers = (objectHandlersArray.length > 0) ? objectHandlersArray[0] : null;
 		
 		locationInfos = new Object();
-		locationInfos.name = location.getAttribute("name");
+		locationInfos.id = location.getAttribute("id");
 		locationInfos.type = "location";
 		if (location.getAttribute("type"))
 		{
@@ -181,7 +173,7 @@ function setLocation(name)
 	}
 	else
 	{
-		alert("Error: Location '" + name + "' not found.");
+		alert("Error: Location '" + id + "' not found.");
 	}
 }
 
@@ -196,6 +188,7 @@ function execute(xml)
 			var expression = element.getAttribute("if");
 			if (expression == null || isExpressionTrue(expression))
 			{
+				var id;
 				var name;
 				var value;
 				if (action == "jump")
@@ -209,39 +202,39 @@ function execute(xml)
 				}
 				else if (action == "get")
 				{
-					takeObject(element.getAttribute("name"));
+					takeObject(element.getAttribute("id"), element.getAttribute("name"));
 				}
 				else if (action == "drop")
 				{
-					name = element.getAttribute("name");
-					if (locationObjectNames.indexOf(name) != -1)
+					id = element.getAttribute("id");
+					if (locationObjectIds.indexOf(id) != -1)
 					{
-						objectsTaken[name] = true;
+						objectsTaken[id] = true;
 						showItemsAndObjects();
 					}
-					var pos = inventoryNames.indexOf(name);
+					var pos = inventoryIds.indexOf(id);
 					if (pos >= 0)
 					{
-						inventoryNames.splice(pos, 1);
+						inventoryIds.splice(pos, 1);
 						showInventoryButton();
 					}
 				}
 				else if (action == "show")
 				{
-					name = element.getAttribute("name");
-					var locationName = element.getAttribute("location");
-					setLocationItemStatus(locationName ? locationName : locationInfos.name, name, "visible", true);
-					if (!locationName || locationName == locationInfos.name)
+					id = element.getAttribute("id");
+					var locationId = element.getAttribute("location");
+					setLocationItemStatus(locationId ? locationId : locationInfos.id, id, "visible", true);
+					if (!locationId || locationId == locationInfos.id)
 					{
 						showItemsAndObjects();
 					}
 				}
 				else if (action == "hide")
 				{
-					name = element.getAttribute("name");
-					var locationName = element.getAttribute("location");
-					setLocationItemStatus(locationName ? locationName : locationInfos.name, name, "hidden", true);
-					if (!locationName || locationName == locationInfos.name)
+					id = element.getAttribute("id");
+					var locationId = element.getAttribute("location");
+					setLocationItemStatus(locationId ? locationId : locationInfos.id, id, "hidden", true);
+					if (!locationId || locationId == locationInfos.id)
 					{
 						showItemsAndObjects();
 					}
@@ -249,19 +242,19 @@ function execute(xml)
 				else if (action == "set")
 				{
 					value = element.getAttribute("value");
-					variables[element.getAttribute("name")] = value ? parseInt(value) : 1;
+					variables[element.getAttribute("var")] = value ? parseInt(value) : 1;
 				}
 				else if (action == "add")
 				{
-					name = element.getAttribute("name");
+					id = element.getAttribute("var");
 					value = element.getAttribute("value");
-					if (variables[name])
+					if (variables[id])
 					{
-						variables[name] += value ? parseInt(value) : 1;
+						variables[id] += value ? parseInt(value) : 1;
 					}
 					else
 					{
-						variables[name] = value ? parseInt(value) : 1;
+						variables[id] = value ? parseInt(value) : 1;
 					}
 				}
 				else if (action == "showimage")
@@ -311,10 +304,10 @@ function isExpressionTrue(expression)
 			switch (parts[0])
 			{
 				case "has":
-					return (inventoryNames.indexOf(parts[1]) >= 0);
+					return (inventoryIds.indexOf(parts[1]) >= 0);
 
 				case "hasnot":
-					return (inventoryNames.indexOf(parts[1]) == -1);
+					return (inventoryIds.indexOf(parts[1]) == -1);
 					
 				case "not":
 					return (parseValue(parts[1]) == 0);
@@ -405,25 +398,25 @@ function splitParts(string)
 
 // CONTROL *************************************************
 
-function setLocationItemStatus(locationName, name, status, overwrite)
+function setLocationItemStatus(locationId, id, status, overwrite)
 {
-	if (!locationItemStatus[locationName])
+	if (!locationItemStatus[locationId])
 	{
-		locationItemStatus[locationName] = new Object();
+		locationItemStatus[locationId] = new Object();
 	}
-	if (overwrite || !locationItemStatus[locationName][name])
+	if (overwrite || !locationItemStatus[locationId][id])
 	{
-		locationItemStatus[locationName][name] = status;
+		locationItemStatus[locationId][id] = status;
 	}
 }
 
-function getLocationItemStatus(locationName, name)
+function getLocationItemStatus(locationId, id)
 {
-	if (locationItemStatus[locationName])
+	if (locationItemStatus[locationId])
 	{
-		if (locationItemStatus[locationName][name])
+		if (locationItemStatus[locationId][id])
 		{
-			return locationItemStatus[locationName][name];
+			return locationItemStatus[locationId][id];
 		}
 	}
 	return null;
@@ -436,35 +429,35 @@ function setItems(xmlItemsArray)
 	for (var i = 0; i < xmlItemsArray.length; i++)
 	{
 		var element = xmlItemsArray[i];
-		var name = element.getAttribute("name");
+		var id = element.getAttribute("id");
 		var status = element.getAttribute("status");
-		xmlLocationItems[name] = element;
+		xmlLocationItems[id] = element;
 
 		var info = new Object();
-		info.name = name;
+		info.id = id;
 		info.canlookat = element.getElementsByTagName("onlookat").length > 0;
 		locationItemInfos.push(info);
 
 		if (status)
 		{
-			setLocationItemStatus(locationInfos.name, name, status, false);
+			setLocationItemStatus(locationInfos.id, id, status, false);
 		}
 	}
 }
 
 function setObjects(xmlObjectsArray)
 {
-	locationObjectNames = new Array();
+	locationObjectIds = new Array();
 	for (var i = 0; i < xmlObjectsArray.length; i++)
 	{
 		var element = xmlObjectsArray[i];
-		locationObjectNames.push(element.getAttribute("name"));
+		locationObjectIds.push(element.getAttribute("id"));
 	}
 }
 
-function useItem(name)
+function useItem(id)
 {
-	var item = xmlLocationItems[name];
+	var item = xmlLocationItems[id];
 	var firstElement = getFirstTagChild(item);
 	if (firstElement != null && firstElement.nodeName.substring(0, 2).toLowerCase() == "on")
 	{
@@ -476,7 +469,7 @@ function useItem(name)
 		}
 		else
 		{
-			addText(getText("DefaultUseItem").replace("%", name));
+			addText(getText("DefaultUseItem").replace("%", id));
 		}
 	}
 	else
@@ -486,20 +479,20 @@ function useItem(name)
 	}
 }
 
-function takeObject(name)
+function takeObject(id, name)
 {
-	inventoryNames.unshift(name);
-	if (locationObjectNames.indexOf(name) != -1)
+	inventoryIds.unshift(id);
+	if (locationObjectIds.indexOf(id) != -1)
 	{
-		objectsTaken[name] = true;
+		objectsTaken[id] = true;
 		showItemsAndObjects();
 	}
 	showInventoryButton();
 }
 
-function lookAtItem(name)
+function lookAtItem(id)
 {
-	var item = xmlLocationItems[name];
+	var item = xmlLocationItems[id];
 	var handlers = item.getElementsByTagName("onlookat");
 	if (handlers.length > 0)
 	{
@@ -507,11 +500,11 @@ function lookAtItem(name)
 	}
 	else
 	{
-		addText(getText("DefaultLookAt").replace("%", name));
+		addText(getText("DefaultLookAt").replace("%", id));
 	}
 }
 
-function handleObjectInLocation(name, event)
+function handleObjectInLocation(id, event)
 {
 	var handlers;
 	
@@ -521,7 +514,7 @@ function handleObjectInLocation(name, event)
 		handlers = xmlLocationObjectHandlers.getElementsByTagName(event);
 		for (var i = 0; i < handlers.length; i++)
 		{
-			if (handlers[i].getAttribute("name") == name)
+			if (handlers[i].getAttribute("id") == id)
 			{
 				execute(handlers[i]);
 				return true;
@@ -531,10 +524,10 @@ function handleObjectInLocation(name, event)
 	return false;
 }
 
-function handleObjectInDefs(name, event, isDefaultAction)
+function handleObjectInDefs(id, event, isDefaultAction)
 {
 	// check for handler in object
-	var item = xmlObjectDefs[name];
+	var item = xmlObjectDefs[id];
 	if (item)
 	{
 		var firstElement = getFirstTagChild(item);
@@ -558,20 +551,20 @@ function handleObjectInDefs(name, event, isDefaultAction)
 	return false;
 }
 
-function useObject(name)
+function useObject(id)
 {
-	if (!handleObjectInLocation(name, "onuse"))
+	if (!handleObjectInLocation(id, "onuse"))
 	{
-		if (!handleObjectInDefs(name, "onuse", false))
+		if (!handleObjectInDefs(id, "onuse", false))
 		{
-			addText(getText("DefaultUseObject").replace("%", name));
+			addText(getText("DefaultUseObject").replace("%", id));
 		}
 	}
 }
 
-function useObjectWith(name)
+function useObjectWith(id)
 {
-	currentUseWith = name;
+	currentUseWith = id;
 	showItemsAndObjects();
 	showInventory();
 }
@@ -583,18 +576,18 @@ function cancelUseWith()
 	showInventory();
 }
 
-function useWithCurrent(name)
+function useWithCurrent(id)
 {
-	var useWithName = currentUseWith;
+	var useWithId = currentUseWith;
 	currentUseWith = null;
 	
-	if (!handleUseWith(useWithName, name, xmlObjectDefs))
+	if (!handleUseWith(useWithId, id, xmlObjectDefs))
 	{
-		if (!handleUseWith(name, useWithName, xmlObjectDefs))
+		if (!handleUseWith(id, useWithId, xmlObjectDefs))
 		{
-			if (!handleUseWith(name, useWithName, xmlLocationItems))
+			if (!handleUseWith(id, useWithId, xmlLocationItems))
 			{
-				addText(getText("DefaultUseWith").replace("%", useWithName).replace("%", name));
+				addText(getText("DefaultUseWith").replace("%", useWithId).replace("%", id));
 			}
 		}
 	}
@@ -603,15 +596,15 @@ function useWithCurrent(name)
 	showInventory();
 }
 
-function handleUseWith(name1, name2, elements)
+function handleUseWith(id1, id2, elements)
 {
-	var item = elements[name1];
+	var item = elements[id1];
 	if (item != null)
 	{
 		var handlers = item.getElementsByTagName("onusewith");
 		for (var i = 0; i < handlers.length; i++)
 		{
-			if (handlers[i].getAttribute("name") == name2)
+			if (handlers[i].getAttribute("id") == id2)
 			{
 				execute(handlers[i]);
 				return true;
@@ -621,20 +614,20 @@ function handleUseWith(name1, name2, elements)
 	return false;
 }
 
-function lookAtObject(name)
+function lookAtObject(id)
 {
-	if (!handleObjectInLocation(name, "onlookat"))
+	if (!handleObjectInLocation(id, "onlookat"))
 	{
-		if (!handleObjectInDefs(name, "onlookat", true))
+		if (!handleObjectInDefs(id, "onlookat", true))
 		{
-			addText(getText("DefaultLookAt").replace("%", name));
+			addText(getText("DefaultLookAt").replace("%", id));
 		}
 	}
 }
 
-function giveObject(name)
+function giveObject(id)
 {
-	if (!handleObjectInLocation(name, "ongive"))
+	if (!handleObjectInLocation(id, "ongive"))
 	{
 		if (xmlLocationObjectHandlers != null)
 		{
@@ -645,22 +638,17 @@ function giveObject(name)
 			}
 			else
 			{
-				addText(getText("DefaultGive").replace("%", name));
+				addText(getText("DefaultGive").replace("%", id));
 			}
 		}
 		else
 		{
-			addText(getText("DefaultGive").replace("%", name));
+			addText(getText("DefaultGive").replace("%", id));
 		}
 	}
 }
 
 // UTILS *************************************************
-
-function safeName(name)
-{
-	return name.replace(/'/g, "\\'").replace(/"/g, "\\\"");
-}
 
 function getFirstTagChild(xml)
 {
@@ -675,11 +663,11 @@ function getFirstTagChild(xml)
 	return null;
 }
 
-function getText(name)
+function getText(id)
 {
-	if (standardTexts.hasOwnProperty(name))
+	if (standardTexts.hasOwnProperty(id))
 	{
-		return standardTexts[name];
+		return standardTexts[id];
 	}
 	return "-ERROR-";
 }
@@ -704,11 +692,11 @@ function saveGame()
 		{
 			disableLoadSaveButtons(true);
 			var savegame = {
-				'inventoryNames': inventoryNames,
+				'inventoryIds': inventoryIds,
 				'objectsTaken': objectsTaken,
 				'variables': variables,
 				'locationItemStatus': locationItemStatus,
-				'currentLocation': locationInfos.name
+				'currentLocation': locationInfos.id
 			};
 			var sendData = {
 				'game_id': serverGameId,
@@ -724,11 +712,11 @@ function saveGame()
 		}
 		else
 		{
-			localStorage.inventoryNames = JSON.stringify(inventoryNames);
+			localStorage.inventoryIds = JSON.stringify(inventoryIds);
 			localStorage.objectsTaken = JSON.stringify(objectsTaken);
 			localStorage.variables = JSON.stringify(variables);
 			localStorage.locationItemStatus = JSON.stringify(locationItemStatus);
-			localStorage.currentLocation = locationInfos.name;
+			localStorage.currentLocation = locationInfos.id;
 			alert("The current game was saved locally in this browser.");
 		}
 	}
@@ -760,7 +748,7 @@ function loadGame()
 		{
 			if (localStorage.hasOwnProperty("currentLocation"))
 			{
-				inventoryNames = JSON.parse(localStorage.inventoryNames);
+				inventoryIds = JSON.parse(localStorage.inventoryIds);
 				objectsTaken = JSON.parse(localStorage.objectsTaken);
 				variables = JSON.parse(localStorage.variables);
 				locationItemStatus = JSON.parse(localStorage.locationItemStatus);
@@ -799,7 +787,7 @@ function onLoadedFromServer(data)
 		if (data.data_json)
 		{
 			var savegame = JSON.parse(data.data_json);
-			inventoryNames = savegame.inventoryNames;
+			inventoryIds = savegame.inventoryIds;
 			objectsTaken = savegame.objectsTaken;
 			variables = savegame.variables;
 			locationItemStatus = savegame.locationItemStatus;
@@ -911,34 +899,34 @@ function showItemsAndObjects()
 	var i;
 	var listItem;
 	var info;
+	var id;
 	var name;
-	var sName;
 	var html;
 	
 	for (i = 0; i < locationItemInfos.length; i++)
 	{
 		info = locationItemInfos[i];
-		name = info.name;
-		var status = getLocationItemStatus(locationInfos.name, name);
+		id = info.id;
+		name = id;
+		var status = getLocationItemStatus(locationInfos.id, id);
 		
 		if (status != "hidden")
 		{
 			listItem = document.createElement("li");
-			sName = safeName(name);
 			if (locationInfos.type == "person")
 			{
 				name = '"' + name + '"';
 			}
 			if (currentUseWith != null)
 			{
-				html = '<a href="#" onclick="useWithCurrent(\'' + sName + '\'); return false;">' + name + '</a>';
+				html = '<a href="#" onclick="useWithCurrent(\'' + id + '\'); return false;">' + name + '</a>';
 			}
 			else
 			{
-				html = '<a href="#" onclick="useItem(\'' + sName + '\'); return false;">' + name + '</a>';
+				html = '<a href="#" onclick="useItem(\'' + id + '\'); return false;">' + name + '</a>';
 				if (info.canlookat)
 				{
-					html += '<span><button type="button" onclick="lookAtItem(\'' + sName + '\')">' + getText("ButtonLookAt") + '</button></span>';
+					html += '<span><button type="button" onclick="lookAtItem(\'' + id + '\')">' + getText("ButtonLookAt") + '</button></span>';
 				}
 			}
 			listItem.className = "item";
@@ -947,21 +935,21 @@ function showItemsAndObjects()
 		}
 	}
 	
-	for (i = 0; i < locationObjectNames.length; i++)
+	for (i = 0; i < locationObjectIds.length; i++)
 	{
-		name = locationObjectNames[i];
-		if (objectsTaken[name] != true)
+		id = locationObjectIds[i];
+		name = id;
+		if (objectsTaken[id] != true)
 		{
 			listItem = document.createElement("li");
-			sName = safeName(name);
 			if (currentUseWith != null)
 			{
-				html = '<a href="#" onclick="useWithCurrent(\'' + sName + '\'); return false;">' + name + '</a>';
+				html = '<a href="#" onclick="useWithCurrent(\'' + id + '\'); return false;">' + name + '</a>';
 			}
 			else
 			{
-				html = '<a href="#" onclick="lookAtObject(\'' + sName + '\'); return false;">' + name + '</a>';
-				html += '<span><button type="button" onclick="takeObject(\'' + sName + '\')">' + getText("ButtonTake") + '</button></span>';
+				html = '<a href="#" onclick="lookAtObject(\'' + id + '\'); return false;">' + name + '</a>';
+				html += '<span><button type="button" onclick="takeObject(\'' + id + '\')">' + getText("ButtonTake") + '</button></span>';
 			}
 			listItem.className = "object";
 			listItem.innerHTML = html;
@@ -972,7 +960,7 @@ function showItemsAndObjects()
 
 function showInventoryButton()
 {
-	document.getElementById("inventory").innerHTML = '<button type="button" id="show" onclick="showInventory()">' + getText("ButtonShowInventory") + ' (' + inventoryNames.length + ')</button>';
+	document.getElementById("inventory").innerHTML = '<button type="button" id="show" onclick="showInventory()">' + getText("ButtonShowInventory") + ' (' + inventoryIds.length + ')</button>';
 }
 
 function showInventory()
@@ -982,31 +970,31 @@ function showInventory()
 	var ul = inventoryDiv.childNodes[1];
 	
 	var html;
-	for (var i = 0; i < inventoryNames.length; i++)
+	for (var i = 0; i < inventoryIds.length; i++)
 	{
 		var listItem = document.createElement("li");
-		var name = inventoryNames[i];
-		var sName = safeName(name);
+		var id = inventoryIds[i];
+		var name = id;
 		if (currentUseWith != null)
 		{
-			if (currentUseWith == name)
+			if (currentUseWith == id)
 			{
 				html = getText("UseWith").replace("%", name) + ' <button type="button" onclick="cancelUseWith();">' + getText("ButtonCancel") + '</button>';
 			}
 			else
 			{
-				html = '<a href="#" onclick="useWithCurrent(\'' + sName + '\'); return false;">' + name + '</a>';
+				html = '<a href="#" onclick="useWithCurrent(\'' + id + '\'); return false;">' + name + '</a>';
 			}
 		}
 		else
 		{
-			html = '<a href="#" onclick="lookAtObject(\'' + sName + '\'); return false;">' + name + '</a><span>';
+			html = '<a href="#" onclick="lookAtObject(\'' + id + '\'); return false;">' + name + '</a><span>';
 			if (locationInfos.type == "person")
 			{
-				html += '<button type="button" onclick="giveObject(\'' + sName + '\')">' + getText("ButtonGive") + '</button>';
+				html += '<button type="button" onclick="giveObject(\'' + id + '\')">' + getText("ButtonGive") + '</button>';
 			}
-			html += '<button type="button" onclick="useObject(\'' + sName + '\')">' + getText("ButtonUse") + '</button>';
-			html += '<button type="button" onclick="useObjectWith(\'' + sName + '\')">' + getText("ButtonUseWith") + '</button>';
+			html += '<button type="button" onclick="useObject(\'' + id + '\')">' + getText("ButtonUse") + '</button>';
+			html += '<button type="button" onclick="useObjectWith(\'' + id + '\')">' + getText("ButtonUseWith") + '</button>';
 			html += '</span>';
 		}
 		listItem.innerHTML = html;
@@ -1032,7 +1020,7 @@ function setInfo(info)
 	
 	// please don't remove or change the link to inutilis, thank you!
 	var engineDiv = document.getElementById("engine-info");
-	engineDiv.innerHTML = 'Uses <a href="http://www.inutilis.de/webtale/" target="_blank">WebTale Engine</a> ' + VERSION + ' by <a href="http://www.inutilis.de" target="_blank">Inutilis</a>';
+	engineDiv.innerHTML = 'Uses <a href="http://www.inutilis.com/software/webtale/" target="_blank">WebTale Engine</a> ' + VERSION + ' by <a href="http://www.inutilis.com" target="_blank">Inutilis</a>';
 }
 
 function showInfo()
