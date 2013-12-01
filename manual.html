@@ -97,34 +97,35 @@ Do whatever you want with the engine, but on your own risk! Anyway, games (story
 <dd>This is the root element of the XML file. The name appears as title in the browser window.</dd>
 <dt>&lt;info&gt;</dt>
 <dd>(Inside of &lt;adventure&gt;)<br />The text of the info box. Line breaks need to be written as "\n".</dd>
-<dt>&lt;text name="…"&gt;</dt>
-<dd>(Inside of &lt;adventure&gt;)<br />A standard text in the language of the game. Standard texts are the default messages, which appear if the player does an action, which is not defined by the story, or texts for buttons in the game. The "%" signs will be replaced by names of items or objects. You can change or translate all texts, but don't touch the "name" attributes and don't remove any element!</dd>
-<dt>&lt;location name="name of the location" image="filename of image" [type="person"]&gt;</dt>
-<dd>(Inside of &lt;adventure&gt;)<br />Definition of one location. Each location needs one &lt;init&gt; and can have several &lt;item&gt;s and &lt;object&gt;s. The name is shown as title, but is also an identification for &lt;jump&gt; commands, so there cannot be two locations with the same name. The image is shown and the file path is relative to the "gamedata" folder.<br />
+<dt>&lt;text id="…"&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />A standard text in the language of the game. Standard texts are the default messages, which appear if the player does an action, which is not defined by the story, or texts for buttons in the game. The "%" signs will be replaced by names of items or objects. You can change or translate all texts, but don't touch the "id" attributes and don't remove any element!</dd>
+<dt>&lt;location id="ID of the location" name="name of the location" image="filename of image" [type="person"]&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />Definition of one location. Each location needs one &lt;init&gt; and can have several &lt;item&gt;s and &lt;object&gt;s. The ID is an identification for &lt;jump&gt; commands, so there cannot be two locations with the same ID. IDs cannot have spaces and should only use english letters and the underscore (_). The name is shown as title. The image is shown and the file path is relative to the "gamedata" folder.<br />
 If the type attribute is set to "person", all items appear in the list with quotes around their names (items are phrases to say then). Furthermore all objects of the inventory get the action "give".</dd>
 <dt>&lt;init&gt;</dt>
 <dd>(Inside of &lt;location&gt;)<br />Contains commands, which are executed when the player enters the location. Usually this is plain text, which describes the location.</dd>
-<dt>&lt;item name="name of the item" [status="hidden"]&gt;</dt>
-<dd>(Inside of &lt;location&gt;)<br />Defines an item for the location. The name appears in the list of things, but it's also used as an identification for other commands. Items which are used in commands cannot have duplicated names.<br />
+<dt>&lt;item id="ID of the item" name="name of the item" [status="hidden"]&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Defines an item for the location. The ID is used as an identification for commands and has to be unique in the location. IDs cannot have spaces and should only use english letters and the underscore (_). The name appears in the list of things.<br />
 If the status attribute is set to "hidden", the item is not shown by default. To make it visible, use the &lt;show&gt; command.<br />
 The element contains action handlers for the item. If there is no action handler, the whole content will be used as &lt;onuse&gt; handler.</dd>
-<dt>&lt;object name="name of the object" /&gt;</dt>
-<dd>(Inside of &lt;location&gt;)<br />Defines an object for the location. The name appears in the list of things, but it's also used as an identification for other commands, so there cannot be objects with the same name in the game.<br />
+<dt>&lt;object id="ID of the object" name="name of the object" /&gt;</dt>
+<dd>(Inside of &lt;location&gt;)<br />Defines an object for the location. The ID is used as an identification for commands and has to be unique in the game. IDs cannot have spaces and should only use english letters and the underscore (_). The name appears in the list of things.<br />
 There is no content in this element. All its action handlers need to be defined globally in &lt;objectdef&gt; elements or location specific in &lt;objects&gt;.</dd>
 <dt>&lt;objects&gt;</dt>
 <dd>(Inside of &lt;location&gt;)<br />Contains action handlers for objects. They are only used in its location, but have a higher priority than the global action handlers in &lt;objectdef&gt;.</dd>
-<dt>&lt;objectdef name="name of object"&gt;</dt>
-<dd>(Inside of &lt;adventure&gt;)<br />Contains action handlers for the object. The name has to be the name of an object which is defined in any location, or used in a &lt;get&gt; command. If there is no action handler, the whole content will be used as &lt;onlookat&gt; handler.</dd>
+<dt>&lt;objectdef id="ID of object" [name="name of object"]&gt;</dt>
+<dd>(Inside of &lt;adventure&gt;)<br />Contains action handlers for the object. The ID has to be the ID of an object which is defined in any location, or used in a &lt;get&gt; command. If there is no action handler, the whole content will be used as &lt;onlookat&gt; handler.<br />
+All objects of the game, which are added by the &lt;get&gt; command, need an &lt;objectdef&gt; with its name. This element can be empty, if no action handlers are needed.</dd>
 </dl>
 <h3>Action Handlers</h3>
 <dl>
-<dt>&lt;onlookat [name="name of thing"]&gt;</dt>
-<dt>&lt;onuse [name="name of thing"]&gt;</dt>
-<dt>&lt;onusewith name="name of second thing"&gt;</dt>
-<dt>&lt;ongive name="name of object"&gt;</dt>
+<dt>&lt;onlookat [id="ID of thing"]&gt;</dt>
+<dt>&lt;onuse [id="ID of thing"]&gt;</dt>
+<dt>&lt;onusewith id="ID of second thing"&gt;</dt>
+<dt>&lt;ongive id="ID of object"&gt;</dt>
 <dd>(Inside of &lt;item&gt;, &lt;objects&gt;, &lt;objectdef&gt;)<br />All action handlers can contain commands and/or plain text. When the player does an action, the corresponding handler will execute its content and/or show its text.<br />
-If an action handler is inside of an &lt;item&gt; or &lt;objectdef&gt; definition, don't use the name attribute, because the handler already belongs to it. The only exception is &lt;onusewith&gt;, because the name is of the second thing the player clicks on.<br />
-If an action handler is inside of &lt;objects&gt; in a location, you have to put the name attribute with the name of an existing object. The &lt;onusewith&gt; handler cannot be used inside &lt;objects&gt;.</dd>
+If an action handler is inside of an &lt;item&gt; or &lt;objectdef&gt; definition, don't use the id attribute, because the handler already belongs to it. The only exception is &lt;onusewith&gt;, because the ID is of the second thing the player clicks on.<br />
+If an action handler is inside of &lt;objects&gt; in a location, you have to put the id attribute with the ID of an existing object. The &lt;onusewith&gt; handler cannot be used inside &lt;objects&gt;.</dd>
 <dt>&lt;onnoneed&gt;</dt>
 <dd>(Inside of &lt;objects&gt;)<br />This is a special action handler, which is used when the player tries to give an object to a person and for the object there is no &lt;ongive&gt; defined. It's usually a plain text like "I don't need this" in the talk style of the person.</dd>
 </dl>
@@ -132,21 +133,21 @@ If an action handler is inside of &lt;objects&gt; in a location, you have to put
 All commands have the optional attribute "if". This means, the command is only executed, if the expression in the "if" attribute is true. Expressions are explained later.<br />
 If you write plain text instead of a command, it is added to the text area of the game. Line breaks have to be written as "\n", breaks in the text editor are ignored.
 <dl>
-<dt>&lt;jump to="name of location" [if="expression"] /&gt;</dt>
+<dt>&lt;jump to="ID of location" [if="expression"] /&gt;</dt>
 <dd>Makes the game continue in another location. If this command is executed, following commands will be skipped.</dd>
 <dt>&lt;do if="expression"&gt;</dt>
 <dd>Contains actions which are only executed if the expression is true. Usually contains plain text, because other commands already have their own "if" attribute.</dd>
-<dt>&lt;get name="name of object /&gt;</dt>
-<dd>Adds an object to the inventory. If an object with this name is in the current location, it will be removed from there.</dd>
-<dt>&lt;drop name="name of object" /&gt;</dt>
+<dt>&lt;get id="ID of object /&gt;</dt>
+<dd>Adds an object to the inventory. If an object with this ID is in the current location, it will be removed from there. If the object is not defined in any location, it needs an &lt;objectdef&gt; to define its name.</dd>
+<dt>&lt;drop id="ID of object" /&gt;</dt>
 <dd>Removes the object from the inventory.</dd>
-<dt>&lt;show name="name of item" [location="name of the location"] /&gt;</dt>
+<dt>&lt;show id="ID of item" [location="ID of the location"] /&gt;</dt>
 <dd>Makes an item with status="hidden" visible. This status will stay, even if the player visits other locations, until &lt;hide&gt; is called. If the location attribute is not set, the current location will be used.</dd>
-<dt>&lt;hide name="name of item" [location="name of the location"] /&gt;</dt>
+<dt>&lt;hide id="ID of item" [location="ID of the location"] /&gt;</dt>
 <dd>Hides the item. This status will stay, even if the player visits other locations, until &lt;show&gt; is called. If the location attribute is not set, the current location will be used.</dd>
-<dt>&lt;set name="name of variable" [value="number"] /&gt;</dt>
-<dd>Sets the variable to a number. If no variable of this name exists, it will be created. If no value is given, the variable is set to 1.</dd>
-<dt>&lt;add name="name of variable" [value="number"] /&gt;</dt>
+<dt>&lt;set var="name of variable" [value="number"] /&gt;</dt>
+<dd>Sets the variable to a number. If no variable of this name exists, it will be created. If no value is given, the variable is set to 1. Variable names cannot have spaces and should only use english letters and the underscore (_).</dd>
+<dt>&lt;add var="name of variable" [value="number"] /&gt;</dt>
 <dd>Adds the given value to the current value of the variable (negative values can be used to subtract). If no value is given, 1 is added. If no variable of the name exists, it will be created with the given value (or 1, if no value is given).</dd>
 <dt>&lt;showimage file="filename of image" /&gt;</dt>
 <dd>Changes the current image to the given one. The file path is relative to the "gamedata" folder.</dd>
@@ -154,14 +155,14 @@ If you write plain text instead of a command, it is added to the text area of th
 <dd>If the game runs in a social network (e.g. Facebook), this will open a "share" dialog. Otherwise the command is ignored.</dd>
 </dl>
 <h3>Expressions</h3>
-<p>Expressions are written inside of "if" attributes and are resolved in true or false. Whenever you use a name of a variable or an object with spaces inside, put single quotes (') around it. For information about variables, see the commands &lt;set&gt; and &lt;add&gt;.</p>
+<p>Expressions are written inside of "if" attributes and are resolved in true or false. For information about variables, see the commands &lt;set&gt; and &lt;add&gt;.</p>
 <dl>
 <dt>"X"</dt>
 <dd>X can be a number or the name of a variable. If the value is 0, the result is false (unexisting variables are 0, too). All other values are resolved in true.</dd>
 <dt>"not X"</dt>
 <dd>Works like "X", but with the contrary result.</dd>
 <dt>"has X"</dt>
-<dd>X is the name of an object. If the player has this object in the inventory, this expression is resolved in true, otherwise in false.</dd>
+<dd>X is the ID of an object. If the player has this object in the inventory, this expression is resolved in true, otherwise in false.</dd>
 <dt>"hasnot X"</dt>
 <dd>Works like "has X", but with the contrary result.</dd>
 <dt>"X is Y"</dt>
