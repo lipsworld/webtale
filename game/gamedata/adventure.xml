@@ -89,7 +89,7 @@
 				You don't want to leave this garden. You are too bored.
 			</do>
 			<do if="hasnot grey_stone">
-				<get id="grey_stone" name="Grey stone" />
+				<get id="grey_stone" />
 				You find a grey stone and you take it, so you forget that you wanted to leave the garden.
 			</do>
 		</item>
@@ -148,7 +148,7 @@
 		</onuse>
 		<onusewith id="hat">
 			You put the hat on the duck.
-			<get id="duck_with_hat" name="Duck with hat" />
+			<get id="duck_with_hat" />
 			<drop id="hat" />
 			<drop id="duck" />
 		</onusewith>
@@ -157,8 +157,10 @@
 		</onlookat>
 	</objectdef>
 	
-	<objectdef name="duck_with_hat">
+	<objectdef id="duck_with_hat" name="Duck with hat">
 		The duck looks funny with the hat.
 	</objectdef>
+
+	<objectdef id="grey_stone" name="Grey stone" />
 
 </adventure>

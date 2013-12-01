@@ -12,6 +12,7 @@ var xmlLocations = new Array();
 var xmlObjectDefs = new Array();
 var xmlLocationItems;
 var xmlLocationObjectHandlers;
+var objectNames = new Object();
 
 // current location
 var locationInfos;
@@ -91,6 +92,7 @@ function loadXML(url)
 function onLoadedXML(xml)
 {
 	var i;
+	var id;
 	
 	setWindowTitle(xml.getAttribute("name"));
 	
@@ -131,7 +133,22 @@ function onLoadedXML(xml)
 	for (i = 0; i < objectDefs.length; i++)
 	{
 		var objectDef = objectDefs[i];
-		xmlObjectDefs[objectDef.getAttribute("id")] = objectDef;
+		id = objectDef.getAttribute("id");
+		xmlObjectDefs[id] = objectDef;
+		if (objectDef.hasAttribute("name"))
+		{
+			objectNames[id] = objectDef.getAttribute("name");
+		}
+	}
+
+	var localObjectDefs = xml.getElementsByTagName("object");
+	for (i = 0; i < localObjectDefs.length; i++)
+	{
+		var localObjectDef = localObjectDefs[i];
+		if (localObjectDef.hasAttribute("name"))
+		{
+			objectNames[localObjectDef.getAttribute("id")] = localObjectDef.getAttribute("name");
+		}
 	}
 	
 	if (useServer() && !userId)
@@ -179,11 +196,13 @@ function setLocation(id)
 
 function execute(xml)
 {
+	var hasContent = false;
 	for (var i = 0; i < xml.childNodes.length; i++)
 	{
 		var element = xml.childNodes[i];
 		if (element.nodeType == 1) // ELEMENT_NODE
 		{
+			hasContent = true;
 			var action = element.nodeName.toLowerCase();
 			var expression = element.getAttribute("if");
 			if (expression == null || isExpressionTrue(expression))
@@ -194,7 +213,7 @@ function execute(xml)
 				if (action == "jump")
 				{
 					setLocation(element.getAttribute("to"));
-					return;
+					return true;
 				}
 				else if (action == "do")
 				{
@@ -202,7 +221,7 @@ function execute(xml)
 				}
 				else if (action == "get")
 				{
-					takeObject(element.getAttribute("id"), element.getAttribute("name"));
+					takeObject(element.getAttribute("id"));
 				}
 				else if (action == "drop")
 				{
@@ -280,9 +299,11 @@ function execute(xml)
 			if (text.length > 0)
 			{
 				addText(text);
+				hasContent = true;
 			}
 		}
 	}
+	return hasContent;
 }
 
 // EXPRESSIONS *************************************************
@@ -362,36 +383,21 @@ function splitParts(string)
 	var len = string.length;
 	var lastPartIndex = 0;
 	var space = " ";
-	var quot = "'";
-	var isInQuot = false;
-	var quotLen = 0;
 	for (var i = 0; i < len; i++)
 	{
 		var ch = string.charAt(i);
 		if (ch == space)
 		{
-			if (!isInQuot)
+			if (i != lastPartIndex)
 			{
-				if (i != lastPartIndex)
-				{
-					array.push(string.substring(lastPartIndex + quotLen, i - quotLen));
-				}
-				lastPartIndex = i + 1;
-				quotLen = 0;
+				array.push(string.substring(lastPartIndex, i));
 			}
-		}
-		else if (ch == quot)
-		{
-			isInQuot = !isInQuot;
-			if (isInQuot)
-			{
-				quotLen = 1;
-			}
+			lastPartIndex = i + 1;
 		}
 	}
 	if (lastPartIndex != len)
 	{
-		array.push(string.substring(lastPartIndex + quotLen, len - quotLen));
+		array.push(string.substring(lastPartIndex, len));
 	}
 	return array;
 }
@@ -430,11 +436,13 @@ function setItems(xmlItemsArray)
 	{
 		var element = xmlItemsArray[i];
 		var id = element.getAttribute("id");
+		var name = element.getAttribute("name");
 		var status = element.getAttribute("status");
 		xmlLocationItems[id] = element;
 
 		var info = new Object();
 		info.id = id;
+		info.name = name;
 		info.canlookat = element.getElementsByTagName("onlookat").length > 0;
 		locationItemInfos.push(info);
 
@@ -469,7 +477,7 @@ function useItem(id)
 		}
 		else
 		{
-			addText(getText("DefaultUseItem").replace("%", id));
+			addText(getText("DefaultUseItem").replace("%", getName(id)));
 		}
 	}
 	else
@@ -479,7 +487,7 @@ function useItem(id)
 	}
 }
 
-function takeObject(id, name)
+function takeObject(id)
 {
 	inventoryIds.unshift(id);
 	if (locationObjectIds.indexOf(id) != -1)
@@ -500,7 +508,7 @@ function lookAtItem(id)
 	}
 	else
 	{
-		addText(getText("DefaultLookAt").replace("%", id));
+		addText(getText("DefaultLookAt").replace("%", getName(id)));
 	}
 }
 
@@ -544,8 +552,10 @@ function handleObjectInDefs(id, event, isDefaultAction)
 		else if (isDefaultAction)
 		{
 			// use everything as default event handler
-			execute(item);
-			return true;
+			if (execute(item))
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -557,7 +567,7 @@ function useObject(id)
 	{
 		if (!handleObjectInDefs(id, "onuse", false))
 		{
-			addText(getText("DefaultUseObject").replace("%", id));
+			addText(getText("DefaultUseObject").replace("%", getName(id)));
 		}
 	}
 }
@@ -587,7 +597,7 @@ function useWithCurrent(id)
 		{
 			if (!handleUseWith(id, useWithId, xmlLocationItems))
 			{
-				addText(getText("DefaultUseWith").replace("%", useWithId).replace("%", id));
+				addText(getText("DefaultUseWith").replace("%", getName(useWithId)).replace("%", getName(id)));
 			}
 		}
 	}
@@ -620,7 +630,7 @@ function lookAtObject(id)
 	{
 		if (!handleObjectInDefs(id, "onlookat", true))
 		{
-			addText(getText("DefaultLookAt").replace("%", id));
+			addText(getText("DefaultLookAt").replace("%", getName(id)));
 		}
 	}
 }
@@ -638,12 +648,12 @@ function giveObject(id)
 			}
 			else
 			{
-				addText(getText("DefaultGive").replace("%", id));
+				addText(getText("DefaultGive").replace("%", getName(id)));
 			}
 		}
 		else
 		{
-			addText(getText("DefaultGive").replace("%", id));
+			addText(getText("DefaultGive").replace("%", getName(id)));
 		}
 	}
 }
@@ -675,6 +685,24 @@ function getText(id)
 function trim(string)
 {
 	return string.replace(/^\s+/g,'').replace(/\s+$/g,'');
+}
+
+function getName(id)
+{
+	if (objectNames[id])
+	{
+		return objectNames[id];
+	}
+	for (i = 0; i < locationItemInfos.length; i++)
+	{
+		var info = locationItemInfos[i];
+		if (info.id == id)
+		{
+			return info.name;
+		}
+	}
+
+	return "[" + id + "]";
 }
 
 // SAVE GAMES *************************************************
@@ -907,7 +935,7 @@ function showItemsAndObjects()
 	{
 		info = locationItemInfos[i];
 		id = info.id;
-		name = id;
+		name = info.name;
 		var status = getLocationItemStatus(locationInfos.id, id);
 		
 		if (status != "hidden")
@@ -938,7 +966,7 @@ function showItemsAndObjects()
 	for (i = 0; i < locationObjectIds.length; i++)
 	{
 		id = locationObjectIds[i];
-		name = id;
+		name = getName(id);
 		if (objectsTaken[id] != true)
 		{
 			listItem = document.createElement("li");
@@ -974,7 +1002,7 @@ function showInventory()
 	{
 		var listItem = document.createElement("li");
 		var id = inventoryIds[i];
-		var name = id;
+		var name = getName(id);
 		if (currentUseWith != null)
 		{
 			if (currentUseWith == id)
